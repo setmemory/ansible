@@ -35,6 +35,10 @@
 1. `git diff master origin/master`
 2. `git reset --hard origin/master`
 
+#### 删除远程git仓库指定的date.txt文件（只删除远程git仓库date.txt文件，不删除本机date.txt文件）
+1. `git rm -r --cached "date.txt"`
+2. `git commit -m "remove date.txt"`
+
 #### github官网刚创建的一个项目需要执行如下git操作:
 1. `echo "# ansible" >> README.md`
 2. `git init`
