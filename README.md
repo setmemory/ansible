@@ -31,14 +31,13 @@
 `git remote add origin https://github.com/tmpyun/java.git`
 <br></br>
 <br></br>
-<br></br>
 
 #### github官网刚创建的一个项目需要执行如下git操作:
-+echo "# ansible" >> README.md
-+git init
-+git add README.md
-+git commit -m "first commit"
-+git branch -M master
-+git remote add origin https://github.com/tmpyun/ansible.git
-+git push -u origin master
++ echo "# ansible" >> README.md
++ git init
++ git add README.md
++ git commit -m "first commit"
++ git branch -M master
++ git remote add origin https://github.com/tmpyun/ansible.git
++ git push -u origin master
 
