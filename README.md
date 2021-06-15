@@ -3,7 +3,6 @@
 git clone https://github.com/tmpyun/ansible.git
 
 --
---
 
 ### 配置git自定用户名
 git config --global user.name "自定义名称"
