@@ -1,17 +1,4 @@
 
-```
-flow
-st=>start: 开始
-op=>operation: My Operation
-cond=>condition: Yes or No?
-e=>end
-st->op->cond
-cond(yes)->e
-cond(no)->op
-&
-```
-
-
 #### 从github官网克隆代码到本机
 `git clone https://github.com/tmpyun/ansible.git`
 <br></br>
