@@ -27,15 +27,21 @@
 `git push -u origin master`
 <br></br>
 
-#### 撤消commit状态
-`git reset --soft HEAD^`
-<br></br>
-
-#### 撤消modify状态
-`git commit --amend`
-
 #### 修改远程git仓库的地址
 `git remote add origin https://github.com/tmpyun/java.git`
+<br></br>
+
+### 查看与撤消工作区到缓存区之前（git add命令之前的操作）
+`git diff`
+`git checkout .`
+<br></br>
+
+### 查看与撤消暂存区到本地git仓储前（git commit命令之前和git add之后的操作）
+`git diff`
+`git checkout .`
+<br></br>
+
+
 <br></br>
 <br></br>
 
