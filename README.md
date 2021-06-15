@@ -32,8 +32,8 @@
 <br></br>
 
 ### 查看与撤消工作区到缓存区之前（git add命令之前的操作）
-+ `git diff`
-+ `git checkout . `
+* `git diff`
+* `git checkout . `
 
 <br></br>
 
