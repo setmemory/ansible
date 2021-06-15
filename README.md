@@ -1,8 +1,6 @@
 
-######## 从github官网克隆代码到本机
+#### 从github官网克隆代码到本机
 `git clone https://github.com/tmpyun/ansible.git`
-<br></br>
-
 #### 配置git自定用户名
 `git config --global user.name "自定义名称"`
 <br></br>
