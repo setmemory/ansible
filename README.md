@@ -23,15 +23,15 @@
 #### 修改远程git仓库的地址
 `git remote add origin https://github.com/tmpyun/java.git`
 
-### 查看与撤消工作区到缓存区之前（git add命令之前的操作）
+#### 查看与撤消工作区到缓存区之前（git add命令之前的操作）
 1. `git diff`
 2. `git checkout .  或者 git reset --hard`
 
-### 查看与撤消暂存区到本地git仓储前（git commit命令之前和git add之后的操作）
+#### 查看与撤消暂存区到本地git仓储前（git commit命令之前和git add之后的操作）
 1. `git diff`
 2. `git checkout .  或者 git reset`
 
-### 查看与撤消本地git仓储到远程git仓库前（git push orgina master命令之前和git commit之后的操作）
+#### 查看与撤消本地git仓储到远程git仓库前（git push orgina master命令之前和git commit之后的操作）
 1. `git diff master origin/master`
 2. `git reset --hard origin/master`
 
