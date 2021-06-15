@@ -1,14 +1,15 @@
 
 #### 从github官网克隆代码到本机
 git clone https://github.com/tmpyun/ansible.git
-
 --
 
-### 配置git自定用户名
+#### 配置git自定用户名
 git config --global user.name "自定义名称"
+--
 
-### 配置git用户邮箱账号，github官网申请的用户名或邮箱账号
+#### 配置git用户邮箱账号，github官网申请的用户名或邮箱账号
 git config --global user.email "github账号"
+--
 
 ### 查看git客户端配置信息
 git config --list
