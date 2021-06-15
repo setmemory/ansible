@@ -2,13 +2,25 @@
 - hosts: 10.10.10.62
   remote_user: root
   tasks:
-  - name: 01-delete old yum file
+  - name: 01-stop and disabled firewalld service
+    ansible.builtin.systemd:
+      name: firewalld
+      state: stopped
+      enabled: no
+
+  - name: 02-modfiy SElinux disbled
+    ansible.builtin.lineinfile:
+      path: /etc/selinux/config
+      regexp: 'SELINUX=enforcing'
+      line: SELINUX=disabled
+
+  - name: 03-delete old yum file
     ansible.builtin.shell: "{{ item }}"
     loop:
       - find /etc/yum.repos.d/ -name "CentOS-Base.repo" | xargs rm -f
       - find /etc/yum.repos.d/ -name "epel.repo" | xargs rm -f
 
-  - name: 02-configure aliyun yum source
+  - name: 04-configure aliyun yum source
     ansible.builtin.get_url:
       url: "{{ item.url }}"
       dest: "{{ item.dest }}"
@@ -16,14 +28,14 @@
       - { url: 'http://mirrors.aliyun.com/repo/Centos-7.repo', dest: '/etc/yum.repos.d/CentOS-Base.repo' }
       - { url: 'http://mirrors.aliyun.com/repo/epel-7.repo', dest: '/etc/yum.repos.d/epel.repo' }
 
-  - name: 03-yum makecache
+  - name: 05-yum makecache
     ansible.builtin.shell: "{{ item }}"
     args:
       warn: no
     with_items:
       - yum makecache
 
-  - name: 04-yum install apache/SVN/PHP
+  - name: 06-yum install apache/SVN/PHP
     ansible.builtin.yum:
       name: 
         - httpd
@@ -32,17 +44,13 @@
         - php
       state: latest
 
-  - name: 05-start httpd service
+  - name: 07-start and enabled httpd service
     ansible.builtin.systemd:
       name: httpd
       state: started
-
-  - name: 06-enabled httpd service
-    ansible.builtin.systemd:
-      name: httpd
       enabled: yes
 
-  - name: 07-create directory
+  - name: 08-create directory
     ansible.builtin.file:
       path: "{{ item }}"
       state: directory
@@ -52,45 +60,45 @@
       - /data/www/svn
       - /data/www/html
     
-  - name: 08-modfiy Apache configuration file /etc/httpd/conf/httpd.conf
+  - name: 09-modfiy Apache configuration file /etc/httpd/conf/httpd.conf
     ansible.builtin.lineinfile:
       path: /etc/httpd/conf/httpd.conf
       regexp: '<Directory "/var/www">'
       line: <Directory "/data/www">
 
-  - name: 09-modfiy Apache configuration file /etc/httpd/conf/httpd.conf
+  - name: 10-modfiy Apache configuration file /etc/httpd/conf/httpd.conf
     ansible.builtin.lineinfile:
       path: /etc/httpd/conf/httpd.conf
       regexp: 'DocumentRoot "/var/www/html"'
       line: DocumentRoot "/data/www/html"
 
-  - name: 10-copy Apache the child configuration with jinjia2 templates
+  - name: 11-copy Apache the child configuration with jinjia2 templates
     ansible.builtin.template:
       src: /etc/ansible/roles/SVNadmin/templates/subversion.conf.j2
       dest: /etc/httpd/conf.d/subversion.conf
 
-  - name: 11-unarchive file
+  - name: 12-unarchive file
     ansible.builtin.unarchive:
       src: /etc/ansible/roles/SVNadmin/files/svnadmin-1.6.2.zip
       dest: /data/www/html
       owner: apache
       group: apache
 
-  - name: 12-modify file name
+  - name: 13-modify file name
     ansible.builtin.shell: "{{ item }}"
     args:
       warn: no
     with_items:
       - mv /data/www/html/iF.SVNAdmin-stable-1.6.2/ /data/www/html/svnadmin
 
-  - name: 13-modify file attribute
+  - name: 14-modify file attribute
     ansible.builtin.file:
       path: /data/www/html/svnadmin
       state: directory
       owner: apache
       group: apache
  
-  - name: 14-create SVN repository
+  - name: 15-create SVN repository
     ansible.builtin.shell: "{{ item }}"
     args:
       warn: no
@@ -100,15 +108,14 @@
       - chown -R apache.apache /data/www/svn/passwd
       - chown -R apache.apache /data/www/svn/control
   
-  - name: 15-start httpd
+  - name: 16-start httpd
     ansible.builtin.systemd:
       name: httpd
       state: started
       enabled: yes
 
-  - name: 16-restart httpd
+  - name: 17-restart httpd
     ansible.builtin.systemd:
       name: httpd
       state: restarted
-
 
