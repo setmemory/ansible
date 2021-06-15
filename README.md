@@ -47,11 +47,11 @@
 <br></br>
 
 #### github官网刚创建的一个项目需要执行如下git操作:
-1. echo "# ansible" >> README.md
-2. git init
-3. git add README.md
-4. git commit -m "first commit"
-5. git branch -M master
-6. git remote add origin https://github.com/tmpyun/ansible.git
-7. git push -u origin master
+1. `echo "# ansible" >> README.md`
+2. `git init`
+3. `git add README.md`
+4. `git commit -m "first commit"`
+5. `git branch -M master`
+6. `git remote add origin https://github.com/tmpyun/ansible.git`
+7. `git push -u origin master`
 
