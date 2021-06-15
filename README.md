@@ -27,6 +27,13 @@
 `git push -u origin master`
 <br></br>
 
+#### 撤消commit状态
+`git reset --soft HEAD^`
+<br></br>
+
+#### 撤消modify状态
+`git commit --amend`
+
 #### 修改远程git仓库的地址
 `git remote add origin https://github.com/tmpyun/java.git`
 <br></br>
