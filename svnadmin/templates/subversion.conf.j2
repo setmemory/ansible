@@ -1,0 +1,9 @@
+<Location /svn/>
+DAV svn
+SVNParentPath /data/www/svn
+AuthType Basic
+AuthName "Authorization SVN"
+AuthUserFile /data/www/svn/passwd
+AuthzSVNAccessFile /data/www/svn/control
+Require valid-user
+</Location>
