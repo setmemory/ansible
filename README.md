@@ -1,5 +1,5 @@
 
-`
+```
 flow
 st=>start: 开始
 op=>operation: My Operation
@@ -9,7 +9,7 @@ st->op->cond
 cond(yes)->e
 cond(no)->op
 &
-`
+```
 
 
 #### 从github官网克隆代码到本机
