@@ -1,6 +1,6 @@
 
 #### 从github官网克隆代码到本机
-git clone https://github.com/tmpyun/ansible.git
+`git clone https://github.com/tmpyun/ansible.git`
 
 ****
 
