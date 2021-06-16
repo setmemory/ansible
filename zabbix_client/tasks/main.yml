@@ -1,0 +1,53 @@
+---
+- hosts: zabbix_agent
+  tasks:
+  - name: 01-create zabbix user
+    ansible.builtin.user:
+      name: zabbix
+      groups:
+      state: present
+      shell: /sbin/nologin
+      create_home: no
+
+  - name: 02-create zabbix agent directory
+    ansible.builtin.file:
+      path: "{{ item }}"
+      state: directory
+      owner: zabbix
+      group: zabbix
+    with_items:
+      - /etc/zabbix
+      - /etc/zabbix/zabbix_agentd.d
+
+  - name: 03-uncompress zabbix_agent package
+    ansible.builtin.unarchive:
+      src: /etc/ansible/roles/zabbix_client/files/zabbix_agent-4.0.21-linux-3.0-amd64-static.tar.gz
+      dest: /etc/zabbix
+      owner: zabbix
+      group: zabbix
+
+  - name: 04-add zabbix agent port in /etc/services tail
+    ansible.builtin.lineinfile:
+      path: /etc/services
+      line: "{{ item }}"
+      state: present 
+    with_items:
+      - zabbix_agent   10050/tcp
+      - zabbix_agent   10050/udp
+
+  - name: 05-copy zabbix agent systemctl configuration
+    ansible.builtin.template:
+      src: /etc/ansible/roles/zabbix_client/templates/zabbix-agent.service
+      dest: /usr/lib/systemd/system/
+
+  - name: 06-copy zabbix agent configuration
+    ansible.builtin.template:
+      src: /etc/ansible/roles/zabbix_client/templates/zabbix_agentd.conf.j2
+      dest: /etc/zabbix/conf/zabbix_agentd.conf
+
+  - name: 08-start and enable zabbix agent service
+    ansible.builtin.systemd:
+      daemon_reload: yes
+      name: zabbix-agent.service
+      state: started
+      enabled: yes
