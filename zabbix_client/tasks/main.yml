@@ -51,3 +51,10 @@
       name: zabbix-agent.service
       state: started
       enabled: yes
+
+### 注意: regexp匹配字符串如果遇到特殊符号'+'需要添加'\'进行转义
+  - name: 09-clean ssh login record
+    ansible.builtin.lineinfile:
+      path: /root/.ssh/authorized_keys
+      regexp: 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCxlV4ysQvGsxdm03423000CoGwB6b5GAVXumTI6sdfdsfds3337U2brU7m20JmhfYU4GKPYbO\+PftFceeww3cfQgj\+utFmFKdjNOM5JxRvnStEjUHNzKqm/yXQPm\+4wkiJRWXEAGlJUa7irZIg55H/AhTlV55SsidgTIz5UF65\+uOsCvyxLY3nW3WiiGVbwqiUU\+fNdonsV5MvI9mdtOQwX/4iiS62vPHElGaHIZIa7tOa0yrxuqGzbocvQf9XOVdgiRIOVddn6GkN9cU0qP8Q1CZQ8wkfJGeI6b15mmKW4HG9IQwSlkZdpmDpx8vFixOgwc450mD8/BUIaTcxElweDhqQYW7Ujx root@hanszabbix'
+      state: absent
