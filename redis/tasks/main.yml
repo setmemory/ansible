@@ -1,0 +1,47 @@
+---
+- hosts: 10.10.10.10
+  remote_user: root
+  vars_files:
+    - /etc/ansible/roles/redis/vars/main.yml
+  tasks:
+    - name: 01-redis directory if exists
+      shell: find /usr/local/ -type d -name "redis-4.0.1"
+      register:
+        redisfile
+
+    - name: 02-uncompress redis install file
+      unarchive: 
+        src: /etc/ansible/roles/redis/files/redis-4.0.1.tar.gz
+        dest: /tmp
+        owner: root
+        group: root
+      when: redisfile.stdout != "/usr/local/redis-4.0.1"
+ 
+    - name: 03-compile redis
+      shell: cd /tmp/redis-4.0.1 && make PREFIX=/usr/local/redis-4.0.1 install
+      when: redisfile.stdout != "/usr/local/redis-4.0.1"
+
+    - name: 04-copy redis configuration
+      template:
+        src: /etc/ansible/roles/redis/templates/redis.conf.j2
+        dest: "{{ redis_path }}/redis.conf"
+      when: redisfile.stdout != "/usr/local/redis-4.0.1"
+
+    - name: 05-copy redis start shell scripts
+      template:
+        src: /etc/ansible/roles/redis/templates/redis.j2
+        dest: /etc/init.d/redis
+        owner: root
+        group: root
+        mode: '700'
+      when: redisfile.stdout != "/usr/local/redis-4.0.1"
+    
+    - name: 06-start redis services
+      shell: /etc/init.d/redis start
+      when: redisfile.stdout != "/usr/local/redis-4.0.1"
+    
+    - name: 06-prompt redis login password
+      debug:
+        msg: " Redis requirepass 123456 and Redis port is 6379"
+      when: redisfile.stdout != "/usr/local/redis-4.0.1"
+

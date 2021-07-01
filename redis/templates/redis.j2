@@ -1,0 +1,65 @@
+#!/bin/sh
+# chkconfig:   2345 90 10
+# Simple Redis init.d script conceived to work on Linux systems
+# as it does use of the /proc filesystem.
+
+source /etc/profile
+
+#redis服务器监听的端口，根据具体情况修改
+REDISPORT=6379
+
+#服务端所处位置
+EXEC={{ redis_path }}/bin/redis-server
+
+#客户端位置
+CLIEXEC={{ redis_path }}/bin/redis-cli
+
+#redis的PID文件位置，根据具体情况修改
+PIDFILE={{ redis_path }}/redis.pid
+
+#redis的配置文件位置，根据具体情况修改
+CONF={{ redis_path }}/redis.conf
+
+#redis的密码，根据具体情况修改
+REDIS_PWD=123456
+
+#redis接受请求地址，根据具体情况修改
+REDIS_HOST=127.0.0.1
+#REDIS_HOST={{ ansible_default_ipv4['address'] }}
+
+case "$1" in
+    start)
+        if [ -f $PIDFILE ]
+        then
+                echo "$PIDFILE exists, process is already running or crashed"
+        else
+                echo "Starting Redis server..."
+                $EXEC $CONF
+		sleep 1
+		ps -ef|grep $REDISPORT |grep -v grep | grep -v PID | awk '{print $2}'
+		if [ $? -eq 0 ]
+		    then
+		    echo "Redis Started"
+		fi
+        fi
+        ;;
+    stop)
+        if [ ! -f $PIDFILE ]
+        then
+                echo "$PIDFILE does not exist, process is not running"
+        else
+                PID=$(cat $PIDFILE)
+                echo "Stopping ..."
+                $CLIEXEC -h $REDIS_HOST -p $REDISPORT -a $REDIS_PWD shutdown
+                while [ -x /proc/${PID} ]
+                do
+                    echo "Waiting for Redis to shutdown ..."
+                    sleep 1
+                done
+                echo "Redis stopped"
+        fi
+        ;;
+    *)
+        echo "Please use start or stop as first argument"
+        ;;
+esac
