@@ -1,0 +1,100 @@
+[client]
+
+[mysql]
+#default-character-set=utf8mb4
+
+[mysqld]
+character-set-server=utf8mb4
+collation-server=utf8mb4_0900_ai_ci
+init_connect='SET NAMES utf8mb4'
+skip-character-set-client-handshake=true
+skip-name-resolve
+
+#默认（没有主从时）主从配置时每个mysql的id值要不同
+server-id=1
+
+#默认初期-参数不配置时默认值为100，最大值为16384，建议配置大小 Max_used_connections / max_connections * 100% 大于10%，理想值建议在80%左右
+#查询系统响应的连接数Max_used_connections：show status like 'max_used_connections'; max_connections查询： show variables like 'max_connections';
+#不重启调整方法-在线临时调整参数命令！重启服务器失效！：查看当前配置SELECT @@MAX_CONNECTIONS AS 'Max Connections'; 修改配置：set GLOBAL max_connections=1000; 
+max_connections=500
+max_connect_errors=1000
+port=3306
+mysqlx_port=33060
+
+mysqlx_socket=/tmp/mysqlx.sock
+basedir={{ mysql_path }}
+datadir={{ mysql_path }}/data
+socket=/tmp/mysql.sock
+pid-file=/tmp/mysqld.pid
+
+log-output=FILE
+general-log=0
+general_log_file={{ mysql_path }}/logs/mysql.log
+log-bin={{ mysql_path }}/logs/mysql.bin
+#默认（没有主从时）-没有主从配置数据库设置为1可以创建修改存储函数，有主从的配置为0或使用特性配置DETERMINISTIC ，READS SQL DATA，NO SQL
+log_bin_trust_function_creators=1
+log-error={{ mysql_path }}/logs/error.log
+#默认-性能优先提交日志写入os缓冲区，可容忍一定事务日志因异常丢失配置此值。数据完整性要求严格配置为1每条事务都会写入日志牺牲性能。
+innodb_flush_log_at_trx_commit=2
+#默认-文件系统控制binlog刷新。数据完整性要求严格配置1每次都会写入牺牲性能。
+sync_binlog = 0
+
+slow-query-log=1
+slow-query-log-file={{ mysql_path }}/logs/slow.log
+#默认初期-慢日志记录查询时间超过下面值得数据，dhg数据查询量大减少mysql慢日志记录量可增大此值，单位s
+long_query_time=5
+lc-messages-dir={{ mysql_path }}/share
+lc-messages="en_US"
+
+#默认-接受数据包大小配置，如果写入大数据默认值太小会导致操作失败，此参数可设置最大值为1G
+#默认-动态配置命令重启失效，查询： show variables like '%max_allowed_pack%';  设置为100M：set global max_allowed_packet = 100 * 1024 * 1024;
+max_allowed_packet=1024M
+
+default-storage-engine=INNODB
+
+#必须修改-独立只使用InnoDB引擎的MySQL服务器作为数据库设置为内存的75%，共享的服务器有其它应用设置为（总内存-其它应用和系统所用内存）*80%
+innodb_buffer_pool_size=8192M
+
+#默认先配置256M，调优要根据实际运行配置
+innodb_log_file_size=256M
+#默认先配置cpu总线程*2，调优要根据实际运行配置
+innodb_thread_concurrency=32
+innodb_autoextend_increment=64
+innodb_buffer_pool_instances=8
+innodb_concurrency_tickets=5000
+innodb_old_blocks_time=1000
+#默认初期-不能超过open_files_limit
+innodb_open_files=500
+open_files_limit=4161
+innodb_stats_on_metadata=0
+innodb_file_per_table=1
+innodb_checksum_algorithm=0
+binlog_format=row
+join_buffer_size=4M
+sort_buffer_size=10M
+read_rnd_buffer_size=16M
+read_buffer_size=4M
+table_open_cache=1024
+#1G-8 2G-16 3G-32 >3G-64
+thread_cache_size=64
+#默认初期-show global status like ‘created_tmp%‘; 理想的配置是：Created_tmp_disk_tables / Created_tmp_tables * 100% <= 25%
+tmp_table_size=256M
+#默认-配置与tmp_table_size大小相同
+max_heap_table_size = 256M
+#默认-主要应用于myISAM引擎
+key_buffer_size=64M
+#默认-支持UTC和SYSTEM,默认采用系统时间
+log_timestamps=SYSTEM
+#默认-表字母存储用小写，使用比较时不区分大小写
+lower_case_table_names=1
+wait_timeout=86400
+interactive_timeout=86400
+open_files_limit=4161
+default-authentication-plugin=mysql_native_password
+sql-mode="STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION"
+
+bind-address=0.0.0.0
+#以下配置注释不开放，需要时参考用
+#sql-mode="STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO"
+#skip-grant-tables
+#skip-log-bin

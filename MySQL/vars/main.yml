@@ -1,0 +1,4 @@
+mysql_path: /usr/local/mysql
+mysql_root_password: 123456
+mysql_package_name: mysql-8.0.15-linux-glibc2.12-x86_64.tar.xz
+mysql_file_name: mysql-8.0.15-linux-glibc2.12-x86_64

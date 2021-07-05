@@ -1,0 +1,139 @@
+---
+- hosts: 10.10.10.62
+  remote_user: root
+  vars_files:
+    - /etc/ansible/roles/MySQL/vars/main.yml
+  tasks:
+    - name: 01-judge MySQL installed directory is exists or not exists
+      shell:  find /usr/local/ -maxdepth 2 -type d -name "mysql"
+      register:
+        mysqldir
+
+    - name: 02-judge MySQL 3306 port is exists or not exists
+      shell: ss -tlunp | grep -w '3306' | awk -F "[ :]+" '{print $6}'
+      register:
+        mysqlport
+    
+    - name: 03-uncompress MySQL installed file
+      unarchive:
+        src: /etc/ansible/roles/MySQL/files/{{ mysql_package_name  }}
+        dest: /usr/local/
+      when: 
+        - mysqldir.stdout != "/usr/local/mysql"
+        - mysqlport.stdout != "3306"
+
+    - name: 04-modify directory name
+      shell: "{{ item }}"
+      with_items: mv /usr/local/{{ mysql_file_name }} /usr/local/mysql
+      when: 
+        - mysqldir.stdout != "/usr/local/mysql"
+        - mysqlport.stdout != "3306"
+
+    - name: 05-create directory
+      file: 
+       path: "{{ item }}"
+       state: directory
+      with_items:
+        - "{{ mysql_path }}/data"
+        - "{{ mysql_path }}/logs"
+      when: 
+        - mysqldir.stdout != "/usr/local/mysql"
+        - mysqlport.stdout != "3306"
+
+    - name: 06-judge MySQL configuration file is exists
+      shell: find /etc/ -maxdepth 1 -type d -name "my.cnf"
+      register:
+        mysqlconfig
+
+    - name: 07-copy MySQL configuration file
+      template:
+        src: /etc/ansible/roles/MySQL/templates/my.cnf.j2
+        dest: /etc/my.cnf
+      when: 
+        - mysqldir.stdout != "/usr/local/mysql"
+        - mysqlport.stdout != "3306"
+
+    - name: 08-create MySQL virtual user
+      user:
+        name: mysql
+        groups:
+        shell: /sbin/nologin
+        create_home: no
+      when: 
+        - mysqldir.stdout != "/usr/local/mysql"
+        - mysqlport.stdout != "3306"
+
+    - name: 09-modify owner and group
+      file:
+        dest: "{{ mysql_path }}"
+        owner: mysql
+        group: mysql
+        recurse: yes
+      when: 
+        - mysqldir.stdout != "/usr/local/mysql"
+        - mysqlport.stdout != "3306"
+
+    - name: 10-create MySQL command link
+      file:
+        src: '{{ mysql_path }}/bin/mysql'
+        dest: '/usr/local/bin/mysql'
+        state: link
+      when: 
+        - mysqldir.stdout != "/usr/local/mysql"
+        - mysqlport.stdout != "3306"
+    
+    - name: 11-yum installed dependent packages
+      yum:
+        name: "{{ packages }}"
+      vars:
+        packages:
+          - libaio
+          - MySQL-python
+
+    - name: 12-initialize MySQL
+      shell: '{{ mysql_path }}/bin/mysqld --initialize --user=mysql'
+      when: 
+        - mysqldir.stdout != "/usr/local/mysql"
+        - mysqlport.stdout != "3306"
+
+    - name: 13-copy MySQL start file
+      template:
+        src: /etc/ansible/roles/MySQL/templates/mysqld.j2
+        dest: /etc/init.d/mysqld
+        mode: '700'
+      when: 
+        - mysqldir.stdout != "/usr/local/mysql"
+        - mysqlport.stdout != "3306"
+    
+    - name: 14-start MySQL service
+      shell: /etc/init.d/mysqld start
+      when: 
+        - mysqldir.stdout != "/usr/local/mysql"
+        - mysqlport.stdout != "3306"
+
+    - name: 15-select local MySQL root password
+      shell: grep "A temporary password"  {{ mysql_path }}/logs/error.log  | awk  '{print $NF}'
+      register:
+        mysqlpwd
+    
+    - name: 16-modify MySQL root password and it is 123456
+      shell: "{{ mysql_path }}/bin/mysqladmin -uroot -p'{{ mysqlpwd.stdout }}' password '{{ mysql_root_password }}'"
+      when: 
+        - mysqldir.stdout != "/usr/local/mysql"
+        - mysqlport.stdout != "3306"
+
+    - name: 17-MySQL self-starting
+      lineinfile:
+        path: /etc/rc.d/rc.local
+        line: /etc/init.d/mysqld start
+      when: 
+        - mysqldir.stdout != "/usr/local/mysql"
+        - mysqlport.stdout != "3306"
+
+    - name: 18-modify rc.local execute privileges
+      file:      
+        path: /etc/rc.d/rc.local
+        mode: '755'
+      when: 
+        - mysqldir.stdout != "/usr/local/mysql"
+        - mysqlport.stdout != "3306"
