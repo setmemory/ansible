@@ -40,7 +40,7 @@
       shell: /etc/init.d/redis start
       when: redisfile.stdout != "/usr/local/redis-4.0.1"
     
-    - name: 06-prompt redis login password
+    - name: 07-prompt redis login password
       debug:
         msg: " Redis requirepass 123456 and Redis port is 6379"
       when: redisfile.stdout != "/usr/local/redis-4.0.1"
