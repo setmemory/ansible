@@ -1,0 +1,63 @@
+---
+- hosts: 10.10.10.62
+  remote_user: root
+  vars_files:
+    - /etc/ansible/roles/OpenOffice/vars/main.yml
+  tasks:
+    - name: 01-select java installed status
+      shell: /usr/local/jdk1.8/bin/java -version
+      register:
+        javastatu
+
+    - name: 02-whether java is installed
+      fail:
+        msg: "JAVA(JDK) is not installed"
+      when: "'java version' not in javastatu.stderr"
+
+    - name: 03-yum installed dependent packages
+      yum: 
+        name: "{{ packages }}"
+        state: present
+      vars:
+        packages:
+          - libXext.i686
+          - libXext.x86_64
+          - "@X Window System"
+
+    - name: 04-unarchive files
+      unarchive:
+        src: /etc/ansible/roles/OpenOffice/files/{{ openoffice_file }}
+        dest: /tmp
+
+    - name: 05-installed OpenOffice
+      shell: "{{ item }}"
+      args:
+        warn: no
+      with_items:
+        - rpm -ivh /tmp/zh-CN/RPMS/*.rpm
+        - rpm -ivh /tmp/zh-CN/RPMS/desktop-integration/openoffice4.1.6-redhat-menus-4.1.6-9790.noarch.rpm
+
+
+    - name: 06-modify rc.local
+      lineinfile:
+        path: /etc/rc.d/rc.local
+        line: /opt/openoffice4/program/soffice -headless -accept="socket,host=127.0.0.1,port=8100;urp;" -nofirststartwizard &
+
+    - name: 07-create start.sh file
+      file:
+        path: /opt/openoffice4/program/start.sh
+        state: touch
+        mode: '755'
+
+    - name: 08-modify rc.local
+      lineinfile:
+        path: /opt/openoffice4/program/start.sh
+        line: /opt/openoffice4/program/soffice -headless -accept="socket,host=127.0.0.1,port=8100;urp;" -nofirststartwizard &
+
+    - name: 09-modify rc.local execute privileges
+      file:      
+        path: /etc/rc.d/rc.local
+        mode: '755'
+
+    - name: 10-start OpenOffice
+      shell: /opt/openoffice4/program/soffice -headless -accept="socket,host=127.0.0.1,port=8100;urp;" -nofirststartwizard &
