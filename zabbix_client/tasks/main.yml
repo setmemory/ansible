@@ -1,5 +1,6 @@
 ---
-- hosts: zabbix_agent
+- hosts: zabbixclient
+  remote_user: root
   tasks:
   - name: 01-create zabbix user
     ansible.builtin.user:
@@ -34,13 +35,20 @@
     with_items:
       - zabbix_agent   10050/tcp
       - zabbix_agent   10050/udp
+      
+  - name: 05-copy zabbix_agent start file
+    copy:
+      src: /etc/zabbix/sbin/zabbix_agentd
+      dest: /etc/init.d/zabbix_agentd
+      remote_src: yes
+      mode: '755'
 
-  - name: 05-copy zabbix agent systemctl configuration
+  - name: 06-copy zabbix agent systemctl configuration
     ansible.builtin.template:
       src: /etc/ansible/roles/zabbix_client/templates/zabbix-agent.service
       dest: /usr/lib/systemd/system/
 
-  - name: 06-copy zabbix agent configuration
+  - name: 07-copy zabbix agent configuration
     ansible.builtin.template:
       src: /etc/ansible/roles/zabbix_client/templates/zabbix_agentd.conf.j2
       dest: /etc/zabbix/conf/zabbix_agentd.conf
